@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: GYSD_streamlit_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+      PGPORT: 5431  # Make PostgreSQL run on port 5431 inside container
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5431:5431"  # Now both external and internal use 5431
+    networks:
+      - streamlit_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} -p 5431"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Streamlit Application
+  streamlit:
+    build: .
+    container_name: GYSD_streamlit_app
+    restart: unless-stopped
+    ports:
+      - "8501:8501"
+    environment:
+      # Database configuration
+      DB_HOST: postgres
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_PORT: ${DB_PORT}
+      
+      # Streamlit configuration
+      STREAMLIT_SERVER_PORT: 8501
+      STREAMLIT_SERVER_ADDRESS: 0.0.0.0
+      STREAMLIT_SERVER_HEADLESS: true
+      STREAMLIT_BROWSER_GATHER_USAGE_STATS: false
+      STREAMLIT_SERVER_FILE_WATCHER_TYPE: poll
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - streamlit_network
+    volumes:
+      - ./logs:/app/logs  # For application logs
+      - ./app.py:/app/app.py:ro  # Mount source files for hot reload
+      - ./utils.py:/app/utils.py:ro
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  streamlit_network:
+    driver: bridge
