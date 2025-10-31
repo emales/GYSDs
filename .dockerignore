@@ -1,0 +1,44 @@
+# Git
+.git
+.gitignore
+
+# Virtual environment
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Local database files
+*.db
+
+# Local config files (use environment variables instead)
+.env
+config.py
+
+# Documentation
+README*.md
+*.md
+
+# Development files
+run_app.sh
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
