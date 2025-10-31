@@ -1,6 +1,6 @@
 import streamlit as st
 import time
-from utils import AuthenticationManager, SessionManager
+from modules.auth import AuthenticationManager, SessionManager
 
 # Configure the Streamlit page
 st.set_page_config(
