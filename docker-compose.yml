@@ -14,7 +14,7 @@ services:
       PGPORT: 5431  # Make PostgreSQL run on port 5431 inside container
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     ports:
       - "5431:5431"  # Now both external and internal use 5431
     networks:
@@ -54,7 +54,7 @@ services:
     volumes:
       - ./logs:/app/logs  # For application logs
       - ./app.py:/app/app.py:ro  # Mount source files for hot reload
-      - ./utils.py:/app/utils.py:ro
+      - ./modules:/app/modules:ro  # Mount modules directory
 
 volumes:
   postgres_data:
